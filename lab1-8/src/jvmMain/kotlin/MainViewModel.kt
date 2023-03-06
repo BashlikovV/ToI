@@ -11,10 +11,6 @@ class MainViewModel {
     private val _mainUiState = MutableStateFlow(EncryptDecryptAlgorithms())
     val mainUiState = _mainUiState.asStateFlow()
 
-    fun applyMainUiState(newValue: EncryptDecryptAlgorithms) {
-        _mainUiState.update { newValue }
-    }
-
     fun onKeyChange(newValue: String) {
         _mainUiState.update { it.copy(key = newValue, getResult = false) }
     }
@@ -24,14 +20,36 @@ class MainViewModel {
     }
 
     fun onGetResultPressed() {
-        _mainUiState.update { it.copy(getResult = !it.getResult) }
+        val dialog = FileDialog(Frame(), "Select File", FileDialog.SAVE)
+        dialog.isVisible = true
+        // Showing save file dialog
+        val path = dialog.directory + dialog.file
+        // Creating file in selected path
+
+        try {
+            if (_mainUiState.value.encryption) {
+                _mainUiState.value.encrypt(
+                    key = _mainUiState.value.key,
+                    resource = _mainUiState.value.input,
+                    path = path
+                )
+            } else {
+                _mainUiState.value.decrypt(
+                    key = _mainUiState.value.key,
+                    resource = _mainUiState.value.input,
+                    path = path
+                )
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     fun onGetFile() {
         _mainUiState.update { it.copy(getFile = !it.getFile) }
         if (_mainUiState.value.getFile) {
             val dialog = FileDialog(Frame(), "Select File", FileDialog.LOAD)
-            dialog.show()
+            dialog.isVisible = true
             if (dialog.file != null) {
                 putFilePath(dialog.directory + dialog.file)
             }
@@ -42,11 +60,7 @@ class MainViewModel {
         _mainUiState.update { it.copy(encryption = !it.encryption) }
     }
 
-    fun onChangeAlgorithm(newValue: Int) {
-        _mainUiState.update { it.copy(algorithm = newValue) }
-    }
-
-    fun removeKey() {
-        _mainUiState.update { it.copy(key = "") }
+    fun onChangeAlgorithm() {
+        _mainUiState.update { it.copy(algorithm = !it.algorithm) }
     }
 }
