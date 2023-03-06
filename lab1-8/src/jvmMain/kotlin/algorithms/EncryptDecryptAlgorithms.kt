@@ -18,6 +18,7 @@ class EncryptDecryptAlgorithms(
         const val alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
         const val count = 33
     }
+
     fun copy(
         encryption: Boolean = this.encryption,
         algorithm: Boolean = this.algorithm,
@@ -42,32 +43,29 @@ class EncryptDecryptAlgorithms(
 
         if (algorithm) {
             val msg = text.toCharArray().filter { it in alphabet }
-            val msgLen = msg.size
-            val keys = CharArray(msgLen)
-            val encryptedMessage = CharArray(msgLen)
+            val keys = CharArray(msg.size)
+            val encryptedMessage = CharArray(msg.size)
 
-            var i = 0
             var j = 0
-            while (i < msgLen) {
+            msg.forEachIndexed { index, _ ->
                 if (j == key.length) {
                     j = 0
                 }
-                keys[i] = key[j]
-                i++
+                keys[index] = key[j]
                 j++
             }
 
-            for (idx in 0 until msgLen step 1) {
-                val index = (((alphabet.indexOf(msg[idx]) + alphabet.indexOf(keys[idx])) % count) + alphabet.indexOf('а'))
-                encryptedMessage[index] = alphabet[index]
+            for (idx in msg.indices step 1) {
+                val tmp = ((alphabet.indexOf(msg[idx]) + alphabet.indexOf(keys[idx])) % count)
+                val index = tmp + alphabet.indexOf('а')
+                encryptedMessage[idx] = alphabet[index]
             }
             tmpRes = encryptedMessage.concatToString()
         } else {
+            val msg = text.filter { it in alphabet }
             if (isMutuallySimple(key.toInt())) {
-                for (i in text.indices) {
-                    if (text[i] in alphabet) {
-                        tmpRes += alphabet[alphabet.indexOf(text[i]) * key.toInt() % count]
-                    }
+                msg.forEachIndexed { idx, _ ->
+                    tmpRes += alphabet[alphabet.indexOf(msg[idx]) * key.toInt() % count]
                 }
             } else {
                 val dlg = Dialog(Frame(), "Error")
@@ -94,12 +92,35 @@ class EncryptDecryptAlgorithms(
         var tmpRes = ""
 
         if (algorithm) {
+            val msg = text.toCharArray().filter { it in alphabet }
+            val keys = CharArray(msg.size)
+            val decryptedMessage = CharArray(msg.size)
 
-        } else {
-            for (i in text.indices) {
-                if (text[i] in alphabet) {
-                    tmpRes += alphabet[(alphabet.indexOf(text[i]) * key.toInt()) % count]
+            var j = 0
+            msg.forEachIndexed { index, _ ->
+                if (j == key.length) {
+                    j = 0
                 }
+                keys[index] = key[j]
+                j++
+            }
+
+            for (idx in msg.indices step 1) {
+                val tmp = (((alphabet.indexOf(msg[idx]) - alphabet.indexOf(keys[idx])) + count) % count)
+                val index = tmp + alphabet.indexOf('а')
+                decryptedMessage[idx] = alphabet[index]
+            }
+            tmpRes = decryptedMessage.concatToString()
+        } else {
+            val msg = text.filter { it in alphabet }
+            if (isMutuallySimple(key.toInt())) {
+                msg.forEachIndexed { i, _ ->
+                    val inverse = mmi(key.toInt())
+                    tmpRes += alphabet[(alphabet.indexOf(msg[i]) * inverse) % count]
+                }
+            } else {
+                val dlg = Dialog(Frame(), "Error")
+                dlg.isVisible = true
             }
         }
 
@@ -122,5 +143,17 @@ class EncryptDecryptAlgorithms(
         }
 
         return tmpKey + tmpCount == 1
+    }
+
+    private fun mmi(a: Int): Int {
+        var tmpA = a
+
+        tmpA %= count
+            for (i in 1 until count step 1) {
+                if ((tmpA * i) % count == 1) {
+                    return i
+                }
+            }
+        return -1
     }
 }
