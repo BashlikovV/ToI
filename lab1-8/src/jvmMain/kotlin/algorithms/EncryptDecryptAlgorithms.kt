@@ -1,9 +1,9 @@
 package algorithms
 
-import java.awt.Dialog
 import java.awt.Frame
 import java.io.*
 import java.util.*
+import javax.swing.JOptionPane
 
 class EncryptDecryptAlgorithms(
     val encryption: Boolean = true,
@@ -56,8 +56,7 @@ class EncryptDecryptAlgorithms(
             }
 
             for (idx in msg.indices step 1) {
-                val tmp = ((alphabet.indexOf(msg[idx]) + alphabet.indexOf(keys[idx])) % count)
-                val index = tmp + alphabet.indexOf('а')
+                val index = (alphabet.indexOf(msg[idx]) + alphabet.indexOf(keys[idx])) % count
                 encryptedMessage[idx] = alphabet[index]
             }
             tmpRes = encryptedMessage.concatToString()
@@ -68,8 +67,7 @@ class EncryptDecryptAlgorithms(
                     tmpRes += alphabet[alphabet.indexOf(msg[idx]) * key.toInt() % count]
                 }
             } else {
-                val dlg = Dialog(Frame(), "Error")
-                dlg.isVisible = true
+                JOptionPane.showMessageDialog(Frame(), "Error. Key and alphabet count is not mutually simple.")
             }
         }
 
@@ -106,8 +104,7 @@ class EncryptDecryptAlgorithms(
             }
 
             for (idx in msg.indices step 1) {
-                val tmp = (((alphabet.indexOf(msg[idx]) - alphabet.indexOf(keys[idx])) + count) % count)
-                val index = tmp + alphabet.indexOf('а')
+                val index = (((alphabet.indexOf(msg[idx]) - alphabet.indexOf(keys[idx])) + count) % count)
                 decryptedMessage[idx] = alphabet[index]
             }
             tmpRes = decryptedMessage.concatToString()
@@ -119,8 +116,7 @@ class EncryptDecryptAlgorithms(
                     tmpRes += alphabet[(alphabet.indexOf(msg[i]) * inverse) % count]
                 }
             } else {
-                val dlg = Dialog(Frame(), "Error")
-                dlg.isVisible = true
+                JOptionPane.showMessageDialog(Frame(), "Error. Key and is blank..")
             }
         }
 
