@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="lab1-8-jvm-1.0-SNAPSHOT">
+    <output-path>$PROJECT_DIR$/build/libs</output-path>
+    <root id="archive" name="lab1-8-jvm-1.0-SNAPSHOT.jar">
+      <element id="module-output" name="lab1-8.jvmMain" />
+    </root>
+  </artifact>
+</component>
