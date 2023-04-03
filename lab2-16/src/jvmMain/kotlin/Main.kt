@@ -1,16 +1,17 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
@@ -96,9 +97,70 @@ fun App(mainViewModel: MainViewModel) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Button(
-                        onClick = { mainViewModel.onOpenKeyClicked() },
+                        onClick = {
+                            mainViewModel.onOpenKeyClicked()
+                        },
                         content = { Text("Open generated key") }
                     )
+                }
+            }
+            KeyWindow(mainUiState.keyVisibility, mainViewModel.key.toString()) {
+                mainViewModel.onOpenKeyClicked()
+            }
+        }
+    }
+}
+
+@Composable
+fun KeyWindow(
+    initialState: Boolean,
+    key: String,
+    onCloseRequest: () -> Unit
+) {
+    val modifier = Modifier.fillMaxSize()
+
+    Window(
+        visible = initialState,
+        onCloseRequest = onCloseRequest,
+        state = WindowState(
+            size = DpSize(300.dp, 600.dp)
+        )
+    ) {
+        Scaffold(
+            modifier = modifier,
+            bottomBar = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Button(
+                        onClick = onCloseRequest,
+                        content = { Text("Close") }
+                    )
+                }
+            }
+        ) {
+            LazyColumn (
+                modifier = modifier
+                    .scrollable(
+                        state = rememberScrollableState{ 0f },
+                        orientation = Orientation.Vertical
+                    )
+            ) {
+                for (i in key.indices step 8) {
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = i.toString() + " -> [" +key.subSequence(i, i + 8).toString() + "]",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -108,9 +170,13 @@ fun App(mainViewModel: MainViewModel) {
 fun main() = application {
     val mainViewModel = MainViewModel()
 
-    Window(onCloseRequest = ::exitApplication, state = WindowState(
-        size = DpSize(600.dp, 300.dp)
-    )) {
+    Window(
+        onCloseRequest = ::exitApplication,
+        state = WindowState(
+            size = DpSize(600.dp, 300.dp)
+        )
+    ) {
         App(mainViewModel = mainViewModel)
     }
+    //11111111111111111111111111111111111111
 }
