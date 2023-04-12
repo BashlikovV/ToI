@@ -8,13 +8,14 @@ class Encoder {
     }
     private var bufSrcFile = StringBuilder()
     private var bufResFile = StringBuilder()
-    var bufGenkey = StringBuilder()
+    private var bufGenkey = StringBuilder()
 
     fun encode(
         polynomialPowers: IntArray,
         initialKey: String,
         pathToSrcFile: String,
-        pathToResFile: String
+        pathToResFile: String,
+        mainViewModel: MainViewModel
     ) {
         val reg = Register(polynomialPowers, initialKey)
 
@@ -22,7 +23,13 @@ class Encoder {
 
         for (i in srcBytes.indices) {
             println("Processing $i")
-            bufSrcFile.append(Integer.toBinaryString(srcBytes[i].toInt() and 0xFF).format("%8s", "0") + " ")
+            val tmp = Integer.toBinaryString(srcBytes[i].toInt() and 0xFF).format("%8s", "0")
+            if (tmp.length < 8) {
+                repeat(8 - tmp.length) {
+                    bufSrcFile.append("0")
+                }
+            }
+            bufSrcFile.append("$tmp ")
 
             val currKey = StringBuilder()
             repeat(BITES) {
@@ -38,8 +45,17 @@ class Encoder {
 
             bufGenkey.append(currKey.toString())
             srcBytes[i] = srcBytes[i] xor keyByte
-            bufResFile.append(Integer.toBinaryString(srcBytes[i].toInt() and 0xFF).format("%8s", "0") + " ")
+            val tmp2 = Integer.toBinaryString(srcBytes[i].toInt() and 0xFF).format("%8s", "0")
+            if (tmp2.length < 8) {
+                repeat(8 - tmp2.length) {
+                    bufResFile.append("0")
+                }
+            }
+            bufResFile.append("$tmp2 ")
         }
         File(pathToResFile).writeBytes(srcBytes)
+        mainViewModel.bufGenkey = bufGenkey.toString().replace(" ", "")
+        mainViewModel.bufSrcFile = bufSrcFile.toString().replace(" ", "")
+        mainViewModel.bufResFile = bufResFile.toString().replace(" ", "")
     }
 }
