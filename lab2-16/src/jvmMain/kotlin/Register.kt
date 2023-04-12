@@ -1,4 +1,7 @@
-class Register(numbers: IntArray, initial: String) {
+class Register(
+    numbers: IntArray,
+    initial: String
+) {
     private val powers: IntArray = numbers.copyOf()
     private val bufNow: IntArray = IntArray(powers.maxOrNull() ?: 0)
     private val xorCells: IntArray = IntArray(powers.size)

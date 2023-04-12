@@ -17,7 +17,10 @@ class MainViewModel {
     }
 
     private val encoder = Encoder()
-    val key = encoder.bufGenkey
+
+    var bufSrcFile = ""
+    var bufResFile = ""
+    var bufGenkey = ""
 
     fun onStartValueChange(newValue: String) {
         _mainUiState.update { it.copy(startValue = newValue) }
@@ -42,7 +45,8 @@ class MainViewModel {
             polynomialPowers = intArrayOf(POLYNOMIAL_POWER, 6, 5, 1),
             initialKey = key,
             pathToSrcFile = _mainUiState.value.inputFile.absolutePath,
-            pathToResFile = _mainUiState.value.outputFile.absolutePath
+            pathToResFile = _mainUiState.value.outputFile.absolutePath,
+            mainViewModel = this
         )
 
         showMessage("Success")
